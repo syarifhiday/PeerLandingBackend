@@ -17,6 +17,6 @@ namespace DAL.Repositories.Services.Interfaces
 
         Task<string> AdminUpdateUser(ReqAdminUpdateUserDto updateUserDto, string Id);
 
-        Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserProfileDto, string Id);
+        Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserProfileDto, string Id, string role);
     }
 }

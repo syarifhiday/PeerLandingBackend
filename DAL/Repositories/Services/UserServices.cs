@@ -89,7 +89,7 @@ namespace DAL.Repositories.Services
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)); 
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -97,6 +97,7 @@ namespace DAL.Repositories.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role),
+                new Claim("Id", user.Id.ToString()), // Tambahkan Id sebagai claim
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -110,6 +111,7 @@ namespace DAL.Repositories.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
         public async Task<ResDeleteDto> Delete(string id)
         {
@@ -159,21 +161,20 @@ namespace DAL.Repositories.Services
             }
         }
 
-        public async Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserDto, string email)
+        public async Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserDto, string email, string id)
         {
             try
             {
-                // Cari user berdasarkan email dari token JWT
-                var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Email == email);
+                // Cari user berdasarkan email atau Id dari token JWT
+                var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Email == email && e.Id == id);
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
 
-                // Update hanya nama user
+                // Lakukan update seperti sebelumnya
                 user.Name = updateUserDto.Name;
 
-                // Simpan perubahan ke database
                 _context.MstUsers.Update(user);
                 await _context.SaveChangesAsync();
 
@@ -181,10 +182,11 @@ namespace DAL.Repositories.Services
             }
             catch (Exception ex)
             {
-                // Tangani kesalahan
                 throw new Exception("An error occurred while updating the user profile: " + ex.Message);
             }
         }
+
+
 
     }
 }

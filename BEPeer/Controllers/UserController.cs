@@ -134,9 +134,11 @@ namespace BEPeer.Controllers
         {
             try
             {
-                // Mendapatkan email dari token JWT
+                // Mendapatkan Id dan email dari token JWT
                 var email = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-                if (email == null)
+                var id = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value; // Mendapatkan Id dari claim
+
+                if (email == null || id == null)
                 {
                     return Unauthorized(new ResBaseDto<string>
                     {
@@ -146,8 +148,8 @@ namespace BEPeer.Controllers
                     });
                 }
 
-                // Mengupdate user berdasarkan email yang diperoleh dari token
-                var result = await _userServices.UpdateUserProfile(updateUserDto, email);
+                // Mengupdate user berdasarkan Id dan email yang diperoleh dari token
+                var result = await _userServices.UpdateUserProfile(updateUserDto, email, id);
                 return Ok(new ResBaseDto<string>
                 {
                     Success = true,
@@ -168,10 +170,11 @@ namespace BEPeer.Controllers
 
 
 
+
         //Update users method
         [HttpPut]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> AdminUpdateUser(string Id, ReqAdminUpdateUserDto updateUser)
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateLoanStatus(string Id, ReqAdminUpdateUserDto updateUser)
         {
             try
             {
