@@ -1,5 +1,6 @@
 ﻿using DAL.DTO.Req;
 using DAL.DTO.Res;
+using DAL.Repositories.Services;
 using DAL.Repositories.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -128,6 +129,32 @@ namespace BEPeer.Controllers
             }
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> DetailUser([FromQuery] string? id = null)
+        {
+            try
+            {
+                var res = await _userServices.DetailUser(id);
+                return Ok(new ResBaseDto<object>
+                {
+                    Success = true,
+                    Message = "Success getting user",
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResBaseDto<string>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
+
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateUserProfile([FromBody] ReqUpdateUserProfileDto updateUserDto)
@@ -168,34 +195,6 @@ namespace BEPeer.Controllers
             }
         }
 
-
-
-
-        //Update users method
-        [HttpPut]
-        //[Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateLoanStatus(string Id, ReqAdminUpdateUserDto updateUser)
-        {
-            try
-            {
-                var result = await _userServices.AdminUpdateUser(updateUser, Id);
-                return Ok(new ResBaseDto<string>
-                {
-                    Success = true,
-                    Message = result,
-                    Data = result
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ResBaseDto<string>
-                {
-                    Success = false,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
-        }
 
 
         [HttpDelete]

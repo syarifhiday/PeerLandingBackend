@@ -15,7 +15,8 @@ namespace DAL.Repositories.Services.Interfaces
         Task<ResLoginDto> Login(ReqLoginDto reqLogin);
         Task<ResDeleteDto> Delete(string id);
 
-        Task<string> AdminUpdateUser(ReqAdminUpdateUserDto updateUserDto, string Id);
+        //Task<string> AdminUpdateUser(ReqAdminUpdateUserDto updateUserDto, string Id);
+        Task<object> DetailUser(string id);
 
         Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserProfileDto, string Id, string role);
     }

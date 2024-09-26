@@ -63,6 +63,24 @@ namespace DAL.Repositories.Services
                 }).ToListAsync();
         }
 
+        public async Task<object> DetailUser(string id)
+        {
+            var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Id == id);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return await _context.MstUsers
+                .Where(e => e.Id == id)
+                .Select(user => new ResDetailUserDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Role = user.Role,
+                    Balance = user.Balance,
+                }).ToListAsync();
+        }
+
         public async Task<ResLoginDto> Login(ReqLoginDto reqLogin)
         {
             var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Email == reqLogin.Email);
@@ -129,36 +147,6 @@ namespace DAL.Repositories.Services
 
             return deleteResponse;
             
-        }
-
-        //Update Method
-        public async Task<string> AdminUpdateUser(ReqAdminUpdateUserDto updateUser, string Id)
-        {
-            try
-            {
-                // Cari user berdasarkan ID
-                var user = await _context.MstUsers.FindAsync(Id);
-                if (user == null)
-                {
-                    throw new Exception("User not found");
-                }
-
-                // Update properti user
-                user.Name = updateUser.Name;
-                user.Role = updateUser.Role;
-                user.Balance = (decimal)updateUser.Balance;
-
-                // Simpan perubahan ke database
-                _context.MstUsers.Update(user);
-                await _context.SaveChangesAsync();
-
-                return $"User {user.Name} has been updated successfully.";
-            }
-            catch (Exception ex)
-            {
-                // Tangani kesalahan
-                throw new Exception("An error occurred while updating the user: " + ex.Message);
-            }
         }
 
         public async Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserDto, string email, string id)
