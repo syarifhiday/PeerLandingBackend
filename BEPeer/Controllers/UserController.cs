@@ -157,15 +157,16 @@ namespace BEPeer.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] ReqUpdateUserProfileDto updateUserDto)
+        public async Task<IActionResult> UpdateUserProfile(string id, [FromBody] ReqUpdateUserProfileDto updateUserDto)
         {
             try
             {
                 // Mendapatkan Id dan email dari token JWT
                 var email = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-                var id = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value; // Mendapatkan Id dari claim
+				//var id = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value; // Mendapatkan Id dari claim
+				var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-                if (email == null || id == null)
+				if (id == null)
                 {
                     return Unauthorized(new ResBaseDto<string>
                     {
@@ -176,7 +177,7 @@ namespace BEPeer.Controllers
                 }
 
                 // Mengupdate user berdasarkan Id dan email yang diperoleh dari token
-                var result = await _userServices.UpdateUserProfile(updateUserDto, email, id);
+                var result = await _userServices.UpdateUserProfile(updateUserDto, email, id, role);
                 return Ok(new ResBaseDto<string>
                 {
                     Success = true,
@@ -195,6 +196,41 @@ namespace BEPeer.Controllers
             }
         }
 
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateBalanceUser([FromBody] ReqUpdateBalanceDto updateBalanceDto, string id)
+        {
+            try
+            {
+
+                if (id == null)
+                {
+                    return Unauthorized(new ResBaseDto<string>
+                    {
+                        Success = false,
+                        Message = "Unauthorized access",
+                        Data = null
+                    });
+                }
+
+                // Mengupdate user berdasarkan Id dan email yang diperoleh dari token
+                var result = await _userServices.UpdateBalanceUser(updateBalanceDto, id);
+                return Ok(new ResBaseDto<ResUpdateBalanceDto>
+                {
+                    Success = true,
+                    Message = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResBaseDto<string>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
 
 
         [HttpDelete]

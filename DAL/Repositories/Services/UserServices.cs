@@ -63,22 +63,23 @@ namespace DAL.Repositories.Services
                 }).ToListAsync();
         }
 
-        public async Task<object> DetailUser(string id)
+        public async Task<ResDetailUserDto> DetailUser(string id)
         {
             var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Id == id);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
-            return await _context.MstUsers
-                .Where(e => e.Id == id)
-                .Select(user => new ResDetailUserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Role = user.Role,
-                    Balance = user.Balance,
-                }).ToListAsync();
+            var resUser = new ResDetailUserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Role = user.Role,
+                Balance = user.Balance
+            };
+
+
+            return resUser;
         }
 
         public async Task<ResLoginDto> Login(ReqLoginDto reqLogin)
@@ -149,24 +150,62 @@ namespace DAL.Repositories.Services
             
         }
 
-        public async Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserDto, string email, string id)
+		public async Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserDto, string email, string id, string role)
+		{
+			try
+			{
+				// Cari user berdasarkan email atau Id dari token JWT
+				var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Id == id);
+				if (user == null)
+				{
+					throw new Exception("User not found");
+				}
+
+				// Check role, if admin, allow updating name, role, and balance
+				if (role == "admin")
+				{
+					user.Name = updateUserDto.Name;
+					user.Role = updateUserDto.Role;
+					user.Balance = updateUserDto.Balance;
+				}
+				else
+				{
+					// For non-admin, only allow name update
+					user.Name = updateUserDto.Name;
+				}
+
+				_context.MstUsers.Update(user);
+				await _context.SaveChangesAsync();
+
+				return $"User {user.Name} has been updated successfully.";
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("An error occurred while updating the user profile: " + ex.Message);
+			}
+		}
+
+
+        public async Task<ResUpdateBalanceDto> UpdateBalanceUser(ReqUpdateBalanceDto updateBalanceDto, string id)
         {
             try
             {
                 // Cari user berdasarkan email atau Id dari token JWT
-                var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Email == email && e.Id == id);
+                var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Id == id);
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
 
-                // Lakukan update seperti sebelumnya
-                user.Name = updateUserDto.Name;
-
+                user.Balance += updateBalanceDto.balance;
+                
                 _context.MstUsers.Update(user);
                 await _context.SaveChangesAsync();
 
-                return $"User {user.Name} has been updated successfully.";
+                return new ResUpdateBalanceDto
+                {
+                    message = "Update balance successfully"
+                };
             }
             catch (Exception ex)
             {
@@ -174,7 +213,6 @@ namespace DAL.Repositories.Services
             }
         }
 
-
-
+        
     }
 }

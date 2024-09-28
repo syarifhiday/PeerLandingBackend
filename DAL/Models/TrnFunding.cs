@@ -19,7 +19,7 @@ namespace DAL.Models
         [Column("loan_id")]
         public string loan_id { get; set; }
         [Required]
-        [ForeignKey("Users")]
+        [ForeignKey("User")]
         [Column("lender_id")]
         public string lender_id { get; set; }
         [Required]

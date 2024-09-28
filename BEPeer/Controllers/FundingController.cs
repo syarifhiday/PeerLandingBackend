@@ -1,28 +1,24 @@
 ﻿using DAL.DTO.Req;
 using DAL.DTO.Res;
-using DAL.Repositories.Services;
 using DAL.Repositories.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BEPeer.Controllers
 {
-    [Route("api/v1/loan/[action]")]
+    [Route("api/v1/funding/[action]")]
     [ApiController]
-    public class LoanController : ControllerBase
+    public class FundingController : ControllerBase
     {
-        private readonly ILoanServices _loanServices;
+        private readonly IFundingServices _fundingServices;
 
-        public LoanController(ILoanServices loanServices)
+        public FundingController(IFundingServices fundingServices)
         {
-            _loanServices = loanServices;
+            _fundingServices = fundingServices;
         }
+
         [HttpPost]
-        public async Task<IActionResult> NewLoan(ReqLoanDto loanDto)
+        public async Task<IActionResult> CreateFunding(ReqFundingDto fundingDto)
         {
             try
             {
@@ -44,11 +40,11 @@ namespace BEPeer.Controllers
                         Data = errors
                     });
                 }
-                var res = await _loanServices.CreateLoan(loanDto);
+                var res = await _fundingServices.CreateFunding(fundingDto);
                 return Ok(new ResBaseDto<string>
                 {
                     Success = true,
-                    Message = "Success add loan data",
+                    Message = "Success add funding data",
                     Data = res
                 });
             }
@@ -63,36 +59,12 @@ namespace BEPeer.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateStatusLoan(string Id, ReqUpdateStatusLoanDto updateStatusLoanDto)
-        {
-            try
-            {
-                var result = await _loanServices.UpdateLoan(updateStatusLoanDto, Id);
-                return Ok(new ResBaseDto<string>
-                {
-                    Success = true,
-                    Message = result,
-                    Data = result
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ResBaseDto<string>
-                {
-                    Success = false,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
-        }
-
         [HttpGet]
-        public async Task<IActionResult> LoanList([FromQuery] string? status = null)
+        public async Task<IActionResult> FundingList([FromQuery] string? lender_id = null)
         {
             try
             {
-                var res = await _loanServices.LoanList(status);
+                var res = await _fundingServices.FundingList(lender_id);
                 return Ok(new ResBaseDto<object>
                 {
                     Success = true,

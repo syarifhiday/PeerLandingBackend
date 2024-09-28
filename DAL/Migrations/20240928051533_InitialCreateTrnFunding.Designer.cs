@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(PeerlandingContext))]
-    [Migration("20240925023623_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240928051533_InitialCreateTrnFunding")]
+    partial class InitialCreateTrnFunding
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -108,10 +108,6 @@ namespace DAL.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<decimal>("amount")
                         .HasColumnType("numeric")
                         .HasColumnName("amount");
@@ -132,7 +128,7 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("lender_id");
 
                     b.HasIndex("loan_id");
 
@@ -154,7 +150,7 @@ namespace DAL.Migrations
                 {
                     b.HasOne("DAL.Models.MstUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("lender_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
