@@ -232,6 +232,41 @@ namespace BEPeer.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> DecreaseBalanceUser([FromBody] ReqUpdateBalanceDto updateBalanceDto, string id)
+        {
+            try
+            {
+
+                if (id == null)
+                {
+                    return Unauthorized(new ResBaseDto<string>
+                    {
+                        Success = false,
+                        Message = "Unauthorized access",
+                        Data = null
+                    });
+                }
+
+                // Mengupdate user berdasarkan Id dan email yang diperoleh dari token
+                var result = await _userServices.DecreaseBalanceUser(updateBalanceDto, id);
+                return Ok(new ResBaseDto<ResUpdateBalanceDto>
+                {
+                    Success = true,
+                    Message = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResBaseDto<string>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
 
         [HttpDelete]
         [Authorize(Roles ="admin")]

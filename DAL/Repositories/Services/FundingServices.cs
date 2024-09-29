@@ -36,20 +36,26 @@ namespace DAL.Repositories.Services
         public async Task<List<ResListFundingDto>> FundingList(string? lender_id = null)
         {
             var fundingsQuery = _peerlandingContext.TrnFundings
-                .Include(f => f.User)
-                .OrderByDescending(funding => funding.funded_at)
+                .Include(f => f.Loans)
+                .ThenInclude(l => l.User) // Join ke MstLoans dan MstUser untuk mengambil nama borrower
                 .Where(funding => lender_id == null || funding.lender_id == lender_id)
                 .Select(funding => new ResListFundingDto
                 {
                     Id = funding.Id,
-                    loanId = funding.loan_id,
-                    lenderId = funding.lender_id,
-                    Amount = funding.amount,
-                    fundedAt = funding.funded_at,
-                });
+                    LoanId = funding.loan_id,
+                    LenderId = funding.lender_id,
+                    BorrowerName = funding.Loans.User.Name, // Nama peminjam dari MstUser
+                    LoanAmount = funding.Loans.Amount, // Jumlah pinjaman dari MstLoans
+                    InterestRate = funding.Loans.InterestRate, // Bunga pinjaman dari MstLoans
+                    Duration = funding.Loans.Duration, // Durasi pinjaman dari MstLoans
+                    Status = funding.Loans.Status, // Status pinjaman dari MstLoans
+                    FundedAt = funding.funded_at // Tanggal pendanaan dari TrnFunding
+                })
+                .OrderByDescending(funding => funding.FundedAt);
 
             return await fundingsQuery.ToListAsync();
         }
+
 
     }
 }

@@ -18,6 +18,8 @@ namespace DAL.Repositories.Services.Interfaces
         //Task<string> AdminUpdateUser(ReqAdminUpdateUserDto updateUserDto, string Id);
         Task<ResDetailUserDto> DetailUser(string id);
         Task<ResUpdateBalanceDto> UpdateBalanceUser(ReqUpdateBalanceDto reqUpdateBalanceDto, string id);
+        Task<ResUpdateBalanceDto> DecreaseBalanceUser(ReqUpdateBalanceDto reqUpdateBalanceDto, string id);
+
 
         Task<string> UpdateUserProfile(ReqUpdateUserProfileDto updateUserProfileDto, string email, string id, string role);
     }

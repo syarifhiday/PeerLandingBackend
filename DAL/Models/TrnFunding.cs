@@ -27,7 +27,7 @@ namespace DAL.Models
         public decimal amount { get; set; }
         [Required]
         [Column("funded_at")]
-        public DateTime funded_at { get; set; }
+        public DateTime funded_at { get; set; } = DateTime.UtcNow;
 
         public MstUser User { get; set; }
         public MstLoans Loans { get; set; }

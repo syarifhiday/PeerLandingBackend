@@ -116,6 +116,7 @@ namespace DAL.Repositories.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role),
+                new Claim("Balance", user.Balance.ToString()),
                 new Claim("Id", user.Id.ToString()), // Tambahkan Id sebagai claim
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
@@ -213,6 +214,33 @@ namespace DAL.Repositories.Services
             }
         }
 
-        
+        public async Task<ResUpdateBalanceDto> DecreaseBalanceUser(ReqUpdateBalanceDto updateBalanceDto, string id)
+        {
+            try
+            {
+                // Cari user berdasarkan email atau Id dari token JWT
+                var user = await _context.MstUsers.SingleOrDefaultAsync(e => e.Id == id);
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                user.Balance -= updateBalanceDto.balance;
+
+                _context.MstUsers.Update(user);
+                await _context.SaveChangesAsync();
+
+                return new ResUpdateBalanceDto
+                {
+                    message = "Update balance successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the user profile: " + ex.Message);
+            }
+        }
+
+
     }
 }

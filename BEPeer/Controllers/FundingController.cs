@@ -68,7 +68,7 @@ namespace BEPeer.Controllers
                 return Ok(new ResBaseDto<object>
                 {
                     Success = true,
-                    Message = "Success getting loans",
+                    Message = "Success getting funding list",
                     Data = res
                 });
             }
