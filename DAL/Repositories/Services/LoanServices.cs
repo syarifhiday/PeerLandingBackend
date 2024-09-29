@@ -34,6 +34,28 @@ namespace DAL.Repositories.Services
             return newLoan.BorrowerId;
         }
 
+        public async Task<List<ResListLoanDto>> RequestedLoanByBorrowerId(string? borrower_id = null)
+        {
+            var loansQuery = _peerlandingContext.MstLoans
+                .Include(l => l.User)
+                .OrderByDescending(loan => loan.UpdatedAt)
+                .Where(loan => (borrower_id == null || loan.BorrowerId == borrower_id) && loan.Status == "requested")
+                .Select(loan => new ResListLoanDto
+                {
+                    LoanId = loan.Id,
+                    BorrowerName = loan.User.Name,
+                    Amount = loan.Amount,
+                    InterestRate = loan.InterestRate,
+                    Duration = loan.Duration,
+                    Status = loan.Status,
+                    CreatedAt = loan.CreatedAt,
+                    UpdatedAt = loan.UpdatedAt,
+                });
+
+            return await loansQuery.ToListAsync();
+
+        }
+
         public async Task<List<ResListLoanDto>> LoanList(string? status = null)
         {
             var loansQuery = _peerlandingContext.MstLoans
